@@ -1,5 +1,10 @@
 {
-  "name": "entrelinhas-backend",
-  "version": "1.0.0",
-  "type": "module"
+	"name": "entrelinhas-backend",
+	"version": "1.0.0",
+	"type": "module",
+	"devDependencies": {
+		"@biomejs/biome": "2.5.0",
+		"@types/node": "^26.0.0",
+		"typescript": "^6.0.3"
+	}
 }

@@ -1,28 +1,24 @@
 import http from 'node:http';
+import { listAllPoems } from './repositories/poemsRepository.ts';
 
 const PORT = 3333;
 
-const server = http.createServer((req, res) => {
-	res.setHeader('Content-Type', 'application/json');
-
+const server = http.createServer(async (req, res) => {
 	try {
+		res.setHeader('Content-Type', 'application/json; charset=utf-8');
+
 		if (req.url === '/poems' && req.method === 'GET') {
+			const poems = await listAllPoems();
+
 			return res.end(
-				JSON.stringify({
-					status: 'success',
-					data: [
-						{
-							id: 1,
-							title: 'Bailar sozinho',
-							text: 'Bailar Sozinho...',
-							author: 'Luiz Gustavo Martins',
-							category: 'Poesia',
-							subcategory: 'Suspense Psicológico',
-							tags: ['romance', 'ilusao', 'plot-twist', 'festa'],
-							created_at: '2021-02-18',
-						},
-					],
-				}),
+				JSON.stringify(
+					{
+						status: 'success',
+						data: poems,
+					},
+					null,
+					2,
+				),
 			);
 		}
 
@@ -39,20 +35,28 @@ const server = http.createServer((req, res) => {
 			res.writeHead(500);
 
 			return res.end(
-				JSON.stringify({
-					statu: '500',
-					message: error.message,
-				}),
+				JSON.stringify(
+					{
+						statu: '500',
+						message: error.message,
+					},
+					null,
+					2,
+				),
 			);
 		}
 
 		res.writeHead(500);
 
 		return res.end(
-			JSON.stringify({
-				status: '500',
-				message: 'Unknown error',
-			}),
+			JSON.stringify(
+				{
+					status: '500',
+					message: 'Unknown error',
+				},
+				null,
+				2,
+			),
 		);
 	}
 });

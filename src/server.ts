@@ -1,9 +1,14 @@
 import express from 'express';
+import libraryRoutes from './routes/library.route.ts';
 
 const app = express();
 
-app.get('/', (_request, response) => {
-	response.status(200).json({ message: 'Hello, World!' });
+app.use('/library', libraryRoutes);
+
+app.use((_request, response) => {
+	return response.status(400).json({
+		message: 'Not found!',
+	});
 });
 
 const PORT = Number(process.env.PORT) || 3333;

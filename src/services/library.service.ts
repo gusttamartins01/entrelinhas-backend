@@ -100,7 +100,7 @@ export async function updateServiceLibrary(
 
 export async function deleteServiceLibrary(id: number): Promise<boolean> {
 	if (!id) {
-		throw new Error('O ID é obrigatório para exclusão.');
+		throw new Error('O ID é obrigatório para exclusão do item.');
 	}
 
 	const db = await getDatabaseConnection();

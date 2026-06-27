@@ -3,6 +3,8 @@ import libraryRoutes from './routes/library.route.ts';
 
 const app = express();
 
+app.use(express.json());
+
 app.use('/library', libraryRoutes);
 
 app.use((_request, response) => {

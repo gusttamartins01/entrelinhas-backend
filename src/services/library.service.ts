@@ -1,29 +1,56 @@
-import { library } from './../mocks/library.ts';
+import { getDatabaseConnection } from '../database/connection.ts';
 import type { Library } from '../models/library.model.ts';
 
-export function listServiceLibrary(): Library[] {
-	return library;
+export async function listServiceLibrary(): Promise<Library[]> {
+	const db = await getDatabaseConnection();
+
+	try {
+		const books = await db.all<Library[]>('SELECT * FROM library');
+
+		return books;
+	} finally {
+		await db.close();
+	}
 }
 
-export function createServiceLibrary(
+export async function createServiceLibrary(
 	book: string,
 	author: string,
 	category: string,
-	year: number,
-): Library {
-	if (!book || !author || !category || !year) {
-		throw new Error('Dados inválidos!');
+	publication_year: number,
+): Promise<Library> {
+	if (!book || !author || !category || !publication_year) {
+		throw new Error('Todos os campos são obrigatórios.');
 	}
 
-	const newBook: Library = {
-		id: library.length + 1,
-		book,
-		author,
-		category,
-		year,
-	};
+	const db = await getDatabaseConnection();
 
-	library.push(newBook);
+	try {
+		const result = await db.run(
+			`INSERT INTO library
+		(book, author, category, publication_year)
+		VALUES (?, ?, ?, ?)
+		`,
+			book,
+			author,
+			category,
+			publication_year,
+		);
 
-	return newBook;
+		const insertedId = result.lastID ?? 0;
+
+		if (insertedId === 0) {
+			throw new Error('Falha ao gera o ID do livro.');
+		}
+
+		return {
+			id: insertedId,
+			book,
+			author,
+			category,
+			publication_year,
+		};
+	} finally {
+		await db.close();
+	}
 }

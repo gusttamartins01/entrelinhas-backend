@@ -3,5 +3,5 @@ export interface Library {
 	book: string;
 	author: string;
 	category: string;
-	year: number;
+	publication_year: number;
 }

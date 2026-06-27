@@ -5,19 +5,33 @@ import {
 	listServiceLibrary,
 } from './../services/library.service.ts';
 
-export function listLibrary(_request: Request, response: Response) {
-	const library = listServiceLibrary();
+export async function listLibrary(_request: Request, response: Response) {
+	try {
+		const library = await listServiceLibrary();
 
-	return response.status(200).json(library);
+		return response.status(200).json(library);
+	} catch (error) {
+		return response.status(500).json({
+			message: error instanceof Error ? error.message : 'Erro Interno',
+		});
+	}
 }
 
-export function createItemLibrary(request: Request, response: Response) {
+export async function createItemLibrary(request: Request, response: Response) {
 	try {
-		const { book, author, category, year } = request.body;
+		const { book, author, category, publication_year } = request.body;
 
-		const newBook: Library = createServiceLibrary(book, author, category, year);
+		const newBook: Library = await createServiceLibrary(
+			book,
+			author,
+			category,
+			publication_year,
+		);
 
-		return response.status(201).json(newBook);
+		return response.status(201).json({
+			message: 'Livro criado com sucesso!',
+			book: newBook,
+		});
 	} catch (error) {
 		return response.status(400).json({
 			message: error instanceof Error ? error.message : 'Erro Interno',

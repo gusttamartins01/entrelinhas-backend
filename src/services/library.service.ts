@@ -75,6 +75,11 @@ export async function updateServiceLibrary(
 			UPDATE library
 			SET book = ?, author = ?, category = ?, publication_year = ?
 			WHERE id = ?`,
+			book,
+			author,
+			category,
+			publication_year,
+			id,
 		);
 
 		if (result.changes === 0) {
@@ -93,4 +98,18 @@ export async function updateServiceLibrary(
 	}
 }
 
-export async function deleteServiceLibrary() {}
+export async function deleteServiceLibrary(id: number): Promise<boolean> {
+	if (!id) {
+		throw new Error('O ID é obrigatório para exclusão.');
+	}
+
+	const db = await getDatabaseConnection();
+
+	try {
+		const result = await db.run('DELETE FROM library WHERE id = ?', id);
+
+		return (result.changes ?? 0) > 0;
+	} finally {
+		await db.close();
+	}
+}

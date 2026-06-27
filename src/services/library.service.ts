@@ -27,10 +27,11 @@ export async function createServiceLibrary(
 
 	try {
 		const result = await db.run(
-			`INSERT INTO library
-		(book, author, category, publication_year)
-		VALUES (?, ?, ?, ?)
-		`,
+			`
+			INSERT INTO library
+			(book, author, category, publication_year)
+			VALUES (?, ?, ?, ?)
+			`,
 			book,
 			author,
 			category,
@@ -54,3 +55,42 @@ export async function createServiceLibrary(
 		await db.close();
 	}
 }
+
+export async function updateServiceLibrary(
+	id: number,
+	book: string,
+	author: string,
+	category: string,
+	publication_year: number,
+): Promise<Library | null> {
+	if (!id || !book || !author || !category || !publication_year) {
+		throw new Error('Todos os campos são obrigatórios para atualização.');
+	}
+
+	const db = await getDatabaseConnection();
+
+	try {
+		const result = await db.run(
+			`
+			UPDATE library
+			SET book = ?, author = ?, category = ?, publication_year = ?
+			WHERE id = ?`,
+		);
+
+		if (result.changes === 0) {
+			return null;
+		}
+
+		return {
+			id,
+			book,
+			author,
+			category,
+			publication_year,
+		};
+	} finally {
+		await db.close();
+	}
+}
+
+export async function deleteServiceLibrary() {}

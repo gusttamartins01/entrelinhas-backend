@@ -4,13 +4,8 @@ import type { Library } from '../models/library.model.ts';
 export async function listServiceLibrary(): Promise<Library[]> {
 	const db = await getDatabaseConnection();
 
-	try {
-		const books = await db.all<Library[]>('SELECT * FROM library');
-
-		return books;
-	} finally {
-		await db.close();
-	}
+	const books = await db.all('SELECT * FROM library ORDER BY id ASC');
+	return books as Library[];
 }
 
 export async function createServiceLibrary(
@@ -25,35 +20,27 @@ export async function createServiceLibrary(
 
 	const db = await getDatabaseConnection();
 
-	try {
-		const result = await db.run(
-			`
-			INSERT INTO library
-			(book, author, category, publication_year)
-			VALUES (?, ?, ?, ?)
-			`,
-			book,
-			author,
-			category,
-			publication_year,
-		);
+	const result = await db.get(
+		`
+        INSERT INTO library
+        (book, author, category, publication_year)
+        VALUES ($1, $2, $3, $4)
+        RETURNING id
+        `,
+		[book, author, category, publication_year],
+	);
 
-		const insertedId = result.lastID ?? 0;
-
-		if (insertedId === 0) {
-			throw new Error('Falha ao gera o ID do livro.');
-		}
-
-		return {
-			id: insertedId,
-			book,
-			author,
-			category,
-			publication_year,
-		};
-	} finally {
-		await db.close();
+	if (!result?.id) {
+		throw new Error('Falha ao gerar o ID do livro.');
 	}
+
+	return {
+		id: result.id,
+		book,
+		author,
+		category,
+		publication_year,
+	};
 }
 
 export async function updateServiceLibrary(
@@ -69,33 +56,25 @@ export async function updateServiceLibrary(
 
 	const db = await getDatabaseConnection();
 
-	try {
-		const result = await db.run(
-			`
-			UPDATE library
-			SET book = ?, author = ?, category = ?, publication_year = ?
-			WHERE id = ?`,
-			book,
-			author,
-			category,
-			publication_year,
-			id,
-		);
+	const result = await db.run(
+		`
+        UPDATE library
+        SET book = $1, author = $2, category = $3, publication_year = $4
+        WHERE id = $5`,
+		[book, author, category, publication_year, id],
+	);
 
-		if (result.changes === 0) {
-			return null;
-		}
-
-		return {
-			id,
-			book,
-			author,
-			category,
-			publication_year,
-		};
-	} finally {
-		await db.close();
+	if (result.changes === 0) {
+		return null;
 	}
+
+	return {
+		id,
+		book,
+		author,
+		category,
+		publication_year,
+	};
 }
 
 export async function deleteServiceLibrary(id: number): Promise<boolean> {
@@ -105,11 +84,7 @@ export async function deleteServiceLibrary(id: number): Promise<boolean> {
 
 	const db = await getDatabaseConnection();
 
-	try {
-		const result = await db.run('DELETE FROM library WHERE id = ?', id);
+	const result = await db.run('DELETE FROM library WHERE id = $1', [id]);
 
-		return (result.changes ?? 0) > 0;
-	} finally {
-		await db.close();
-	}
+	return (result?.changes ?? 0) > 0;
 }

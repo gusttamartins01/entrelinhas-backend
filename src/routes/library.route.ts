@@ -10,7 +10,7 @@ const router = Router();
 
 router.get('/', listLibrary);
 router.post('/', createItemLibrary);
-router.put('/library', updateItemLibrary);
-router.delete('/library', deleteItemLibrary);
+router.put('/:id', updateItemLibrary);
+router.delete('/:id', deleteItemLibrary);
 
 export default router;

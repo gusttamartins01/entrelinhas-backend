@@ -9,3 +9,7 @@ comands.md
 poems.db
 
 .env
+
+*.db
+*.sqlite
+*.sqlite3
